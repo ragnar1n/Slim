@@ -23,5 +23,16 @@ $app = AppFactory::create();
 $app->get('/', '\App\Controller\AlbumsController:default');
 $app->get('/search', '\App\Controller\AlbumsController:search');
 $app->any('/form', '\App\Controller\AlbumsController:form');
+$app->get('/details/{id:[0-9]+}', 'App\Controller\AlbumsController:details');
+
+$errorMiddleware = $app->addErrorMiddleware(false, true, true);
+
+$errorMiddleware->setErrorHandler(
+    Slim\Exception\HttpNotFoundException::class,
+    function (Psr\Http\Message\ServerRequestInterface $request) use ($container) {
+        $controller = new App\Controller\ExceptionController($container);
+        return $controller->notFound($request);
+    }
+);
 
 $app->run();
